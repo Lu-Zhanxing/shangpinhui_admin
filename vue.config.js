@@ -27,7 +27,8 @@ module.exports = {
   publicPath: '/',
   outputDir: 'dist',
   assetsDir: 'static',
-  lintOnSave: process.env.NODE_ENV === 'development',
+  // lintOnSave: process.env.NODE_ENV === 'development',
+  lintOnSave: false,
   productionSourceMap: false,
   devServer: {
     port: port,
@@ -39,8 +40,12 @@ module.exports = {
     // before: require('./mock/mock-server.js')
     // 配置代理跨域，这里不需要用mock的数据的，要用真实的
     proxy: {
-      '/dev-api': {
+      '/dev-api/admin/acl': {
         target: 'http://39.98.123.211:8170',
+        pathRewrite:{'^/dev-api':''}
+      },
+      '/dev-api': {
+        target: 'http://39.98.123.211:8510',
         pathRewrite:{'^/dev-api':''}
       },
     }

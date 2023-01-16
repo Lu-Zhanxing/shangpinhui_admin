@@ -12,6 +12,8 @@ import App from './App'
 import store from './store'
 import router from './router'
 
+import API from '@/api/index.js'
+
 import '@/icons' // icon
 import '@/permission' // permission control
 /**
@@ -38,5 +40,8 @@ new Vue({
   el: '#app',
   router,
   store,
+  beforeCreate(){
+    Vue.prototype.$API = API
+  },
   render: h => h(App)
 })
