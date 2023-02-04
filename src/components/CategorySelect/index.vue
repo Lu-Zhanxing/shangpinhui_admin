@@ -12,7 +12,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="分类三">
-        <el-select placeholder="请选择" v-model="cForm.categoryId3" >
+        <el-select placeholder="请选择" v-model="cForm.categoryId3" @change="getAttrList">
             <el-option :label="c3.name" :value="c3.id" v-for="(c3,index) in list3" :key="c3.id"></el-option>
         </el-select>
       </el-form-item>
@@ -51,6 +51,7 @@ export default {
     // 获取分类二列表
     async getCategory2(){
         const {categoryId1} = this.cForm
+        this.$emit('getCategoryId',{categoryId:categoryId1,level:1})
         let result = await this.$API.attr.reqGetCategory2(categoryId1)
         if(result.code == 200){
             this.list2 = result.data
@@ -62,12 +63,18 @@ export default {
     // 获取分类三列表
     async getCategory3(){
         const {categoryId2} = this.cForm
+        this.$emit('getCategoryId',{categoryId:categoryId2,level:2})
         let result = await this.$API.attr.reqGetCategory3(categoryId2)
         if(result.code == 200){
             this.list3 = result.data
         }
         // 改变分类二的时候，将分类三的选中的值清空
         this.cForm.categoryId3 = ''
+    },
+    // 当选择了三级分类之后，将三级分类id传给父组件
+    getAttrList(){
+        const {categoryId3} = this.cForm
+        this.$emit('getCategoryId',{categoryId:categoryId3,level:3})
     }
   },
   
