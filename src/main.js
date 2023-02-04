@@ -36,6 +36,10 @@ Vue.use(ElementUI, { locale })
 
 Vue.config.productionTip = false
 
+// 引入全局组件
+import CategorySelect from '@/components/CategorySelect'
+Vue.component(CategorySelect.name,CategorySelect)
+
 new Vue({
   el: '#app',
   router,
