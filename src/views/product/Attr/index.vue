@@ -71,8 +71,8 @@
             width="width">
             <!-- 这里不知道咋处理，还得再看看视频 -->
             <template slot-scope="{row,$index}">
-              <el-input v-model="row.valueName" placeholder="请输入属性值" size="mini" v-if="row.flag" @blur="changeFlag(row)" @keyup.native.enter="changeFlag(row)"></el-input>
-              <span v-else @click="row.flag = true" style="display:block">{{row.valueName}}</span>
+              <el-input v-model="row.valueName" :ref="$index" placeholder="请输入属性值" size="mini" v-if="row.flag" @blur="changeFlag(row)" @keyup.native.enter="changeFlag(row)"></el-input>
+              <span v-else @click="changeFlagToTrue(row,$index)" style="display:block">{{row.valueName}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -158,6 +158,10 @@ export default {
         valueName:'',
         flag: true
       })
+      // 自动聚焦
+      this.$nextTick(()=>{
+        this.$refs[this.attrForm.attrValueList.length-1].focus()
+      })
     },
     // 编辑属性
     editAttr(row){
@@ -165,6 +169,10 @@ export default {
       console.log(row)
       // 注意：这里要用到深拷贝(引入的lodash深拷贝插件)
       this.attrForm = cloneDeep(row)
+      // 这里需要手动添加一下flag值，因为之前的数据可能没有flag值，这时候就需要添加一下
+      this.attrForm.attrValueList.forEach(item => {
+        this.$set(item,'flag',false)
+      });
     },
     // 取消添加属性
     cancelAddOrEditAttr(){
@@ -186,6 +194,13 @@ export default {
       // 如果有重复的，那么点击回车无效
       if(isRepeat) return
       row.flag = false
+    },
+    changeFlagToTrue(row,index){
+      row.flag = true
+      // 自动聚焦
+      this.$nextTick(()=>{
+        this.$refs[index].focus()
+      })
     }
   },
 };
