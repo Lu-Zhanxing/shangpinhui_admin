@@ -71,7 +71,8 @@
             width="width">
             <!-- 这里不知道咋处理，还得再看看视频 -->
             <template slot-scope="{row,$index}">
-              <el-input v-model="row.valueName" placeholder="请输入属性值" size="mini"></el-input>
+              <el-input v-model="row.valueName" placeholder="请输入属性值" size="mini" v-if="row.flag" @blur="changeFlag(row)" @keyup.native.enter="changeFlag(row)"></el-input>
+              <span v-else @click="row.flag = true" style="display:block">{{row.valueName}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -104,12 +105,7 @@ export default {
       isShowAttrList: false,
       attrForm:{
         attrName:'',
-        attrValueList:[
-          {
-            id:'',
-            valueName:'测试数据'
-          }
-        ],
+        attrValueList:[],
         categoryId:'',
         // 这里是固定值3，因为只有分类三才会有添加属性操作
         categoryLevel:'3'
@@ -158,8 +154,9 @@ export default {
     // 添加属性按钮的回调
     addAttrVal(){
       this.attrForm.attrValueList.push({
-        id: undefined,
-        valueName:''
+        attrId: this.attrForm.id, // 获取到编辑属性的id值
+        valueName:'',
+        flag: true
       })
     },
     // 编辑属性
@@ -172,6 +169,23 @@ export default {
     // 取消添加属性
     cancelAddOrEditAttr(){
       this.isShowAttrList = true
+    },
+    // 失去焦点、回车事件改变状态，隐藏输入框，显示span
+    changeFlag(row){
+      // 如果输入的内容为空，提示
+      if(row.valueName.trim() == ''){
+        this.$message('输入的属性值不能为空')
+        return
+      }
+      // 判断是否有重复的
+      let isRepeat = this.attrForm.attrValueList.some(item => {
+        if(item != row){
+          return item.valueName == row.valueName
+        }
+      })
+      // 如果有重复的，那么点击回车无效
+      if(isRepeat) return
+      row.flag = false
     }
   },
 };
