@@ -55,32 +55,51 @@
             ></el-input>
           </el-form-item>
         </el-form>
-        <el-button type="primary" icon="el-icon-plus" @click="addAttrVal" :disabled="!attrForm.attrName">添加属性值</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          @click="addAttrVal"
+          :disabled="!attrForm.attrName"
+          >添加属性值</el-button
+        >
         <el-button @click="cancelAddOrEditAttr">取消</el-button>
         <el-table
           :data="attrForm.attrValueList"
-          style="width: 100%;margin:20px 0" border>
-          <el-table-column
-            label="序号"
-            type="index"
-            width="80"
-            align="center">
+          style="width: 100%; margin: 20px 0"
+          border
+        >
+          <el-table-column label="序号" type="index" width="80" align="center">
           </el-table-column>
-          <el-table-column
-            label="属性值名称"
-            width="width">
+          <el-table-column label="属性值名称" width="width">
             <!-- 这里不知道咋处理，还得再看看视频 -->
-            <template slot-scope="{row,$index}">
-              <el-input v-model="row.valueName" :ref="$index" placeholder="请输入属性值" size="mini" v-if="row.flag" @blur="changeFlag(row)" @keyup.native.enter="changeFlag(row)"></el-input>
-              <span v-else @click="changeFlagToTrue(row,$index)" style="display:block">{{row.valueName}}</span>
+            <template slot-scope="{ row, $index }">
+              <el-input
+                v-model="row.valueName"
+                :ref="$index"
+                placeholder="请输入属性值"
+                size="mini"
+                v-if="row.flag"
+                @blur="changeFlag(row)"
+                @keyup.native.enter="changeFlag(row)"
+              ></el-input>
+              <span
+                v-else
+                @click="changeFlagToTrue(row, $index)"
+                style="display: block"
+                >{{ row.valueName }}</span
+              >
             </template>
           </el-table-column>
-          <el-table-column
-            prop="prop"
-            label="操作"
-            width="width">
-            <template slot-scope="{row,$index}">
-              <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+          <el-table-column prop="prop" label="操作" width="width">
+            <template slot-scope="{ row, $index }">
+              <el-popconfirm :title="`确定删除${row.valueName}吗？`" @onConfirm="delAttrVal($index)">
+                <el-button
+                  type="danger"
+                  icon="el-icon-delete"
+                  size="mini"
+                  slot="reference"
+                ></el-button>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -92,7 +111,7 @@
 </template>
 
 <script>
-import cloneDeep from 'lodash/cloneDeep'
+import cloneDeep from "lodash/cloneDeep";
 export default {
   name: "Attr",
   data() {
@@ -103,13 +122,13 @@ export default {
       attrList: [],
       // 是否展示属性列表
       isShowAttrList: false,
-      attrForm:{
-        attrName:'',
-        attrValueList:[],
-        categoryId:'',
+      attrForm: {
+        attrName: "",
+        attrValueList: [],
+        categoryId: "",
         // 这里是固定值3，因为只有分类三才会有添加属性操作
-        categoryLevel:'3'
-      }
+        categoryLevel: "3",
+      },
     };
   },
   methods: {
@@ -141,67 +160,70 @@ export default {
       }
     },
     // 添加属性
-    addAttr(){
-      this.isShowAttrList = false
+    addAttr() {
+      this.isShowAttrList = false;
       // 添加之前先清空之前的内容
       this.attrForm = {
-        attrName:'',
-        attrValueList:[],
-        categoryId:this.category3Id,
-        categoryLevel:'3'
-      }
+        attrName: "",
+        attrValueList: [],
+        categoryId: this.category3Id,
+        categoryLevel: "3",
+      };
     },
     // 添加属性按钮的回调
-    addAttrVal(){
+    addAttrVal() {
       this.attrForm.attrValueList.push({
         attrId: this.attrForm.id, // 获取到编辑属性的id值
-        valueName:'',
-        flag: true
-      })
+        valueName: "",
+        flag: true,
+      });
       // 自动聚焦
-      this.$nextTick(()=>{
-        this.$refs[this.attrForm.attrValueList.length-1].focus()
-      })
+      this.$nextTick(() => {
+        this.$refs[this.attrForm.attrValueList.length - 1].focus();
+      });
     },
     // 编辑属性
-    editAttr(row){
-      this.isShowAttrList = false
-      console.log(row)
+    editAttr(row) {
+      this.isShowAttrList = false;
       // 注意：这里要用到深拷贝(引入的lodash深拷贝插件)
-      this.attrForm = cloneDeep(row)
+      this.attrForm = cloneDeep(row);
       // 这里需要手动添加一下flag值，因为之前的数据可能没有flag值，这时候就需要添加一下
-      this.attrForm.attrValueList.forEach(item => {
-        this.$set(item,'flag',false)
+      this.attrForm.attrValueList.forEach((item) => {
+        this.$set(item, "flag", false);
       });
     },
     // 取消添加属性
-    cancelAddOrEditAttr(){
-      this.isShowAttrList = true
+    cancelAddOrEditAttr() {
+      this.isShowAttrList = true;
     },
     // 失去焦点、回车事件改变状态，隐藏输入框，显示span
-    changeFlag(row){
+    changeFlag(row) {
       // 如果输入的内容为空，提示
-      if(row.valueName.trim() == ''){
-        this.$message('输入的属性值不能为空')
-        return
+      if (row.valueName.trim() == "") {
+        this.$message("输入的属性值不能为空");
+        return;
       }
       // 判断是否有重复的
-      let isRepeat = this.attrForm.attrValueList.some(item => {
-        if(item != row){
-          return item.valueName == row.valueName
+      let isRepeat = this.attrForm.attrValueList.some((item) => {
+        if (item != row) {
+          return item.valueName == row.valueName;
         }
-      })
+      });
       // 如果有重复的，那么点击回车无效
-      if(isRepeat) return
-      row.flag = false
+      if (isRepeat) return;
+      row.flag = false;
     },
-    changeFlagToTrue(row,index){
-      row.flag = true
+    changeFlagToTrue(row, index) {
+      row.flag = true;
       // 自动聚焦
-      this.$nextTick(()=>{
-        this.$refs[index].focus()
-      })
-    }
+      this.$nextTick(() => {
+        this.$refs[index].focus();
+      });
+    },
+    // 删除(注意：由于elementui版本问题，确定事件是onConfirm，而不是confirm)
+    delAttrVal(index) {
+      this.attrForm.attrValueList.splice(index,1)
+    },
   },
 };
 </script>
