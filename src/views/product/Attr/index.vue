@@ -1,10 +1,10 @@
 <template>
   <div>
     <el-card class="box-card" style="margin: 10px 0 20px 0">
-      <CategorySelect @getCategoryId="getCategoryId" :isShowAttrList="isShowAttrList"></CategorySelect>
+      <CategorySelect @getCategoryId="getCategoryId" :isShowTable="isShowTable"></CategorySelect>
     </el-card>
     <el-card>
-      <div v-show="isShowAttrList">
+      <div v-show="isShowTable">
         <el-button
           type="primary"
           icon="el-icon-plus"
@@ -49,7 +49,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <div v-show="!isShowAttrList">
+      <div v-show="!isShowTable">
         <el-form :inline="true" :model="attrForm" class="demo-form-inline">
           <el-form-item label="属性名">
             <el-input
@@ -127,7 +127,7 @@ export default {
       category3Id: "",
       attrList: [],
       // 是否展示属性列表
-      isShowAttrList: true,
+      isShowTable: true,
       attrForm: {
         attrName: "",
         attrValueList: [],
@@ -167,7 +167,7 @@ export default {
     },
     // 添加属性
     addAttr() {
-      this.isShowAttrList = false;
+      this.isShowTable = false;
       // 添加之前先清空之前的内容
       this.attrForm = {
         attrName: "",
@@ -196,7 +196,7 @@ export default {
     },
     // 编辑属性
     editAttr(row) {
-      this.isShowAttrList = false;
+      this.isShowTable = false;
       // 注意：这里要用到深拷贝(引入的lodash深拷贝插件)
       this.attrForm = cloneDeep(row);
       // 这里需要手动添加一下flag值，因为之前的数据可能没有flag值，这时候就需要添加一下
@@ -206,7 +206,7 @@ export default {
     },
     // 取消添加属性
     cancelAddOrEditAttr() {
-      this.isShowAttrList = true;
+      this.isShowTable = true;
     },
     // 失去焦点、回车事件改变状态，隐藏输入框，显示span
     changeFlag(row) {
@@ -253,7 +253,7 @@ export default {
             message:'保存成功'
           })
           // 保存成功后返回列表页
-          this.isShowAttrList = true,
+          this.isShowTable = true,
           // 更新属性列表
           this.getCategoryList()
         }

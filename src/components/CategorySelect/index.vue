@@ -2,17 +2,17 @@
   <div>
     <el-form :inline="true" :model="cForm" class="demo-form-inline">
       <el-form-item label="分类一">
-        <el-select placeholder="请选择" v-model="cForm.categoryId1" @change="getCategory2()" :disabled="!isShowAttrList">
+        <el-select placeholder="请选择" v-model="cForm.categoryId1" @change="getCategory2()" :disabled="!isShowTable">
           <el-option :label="c1.name" :value="c1.id" v-for="(c1,index) in list1" :key="c1.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="分类二">
-        <el-select placeholder="请选择" v-model="cForm.categoryId2" @change="getCategory3()" :disabled="!isShowAttrList">
+        <el-select placeholder="请选择" v-model="cForm.categoryId2" @change="getCategory3()" :disabled="!isShowTable">
             <el-option :label="c2.name" :value="c2.id" v-for="(c2,index) in list2" :key="c2.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="分类三">
-        <el-select placeholder="请选择" v-model="cForm.categoryId3" @change="getAttrList" :disabled="!isShowAttrList">
+        <el-select placeholder="请选择" v-model="cForm.categoryId3" @change="getAttrList" :disabled="!isShowTable">
             <el-option :label="c3.name" :value="c3.id" v-for="(c3,index) in list3" :key="c3.id"></el-option>
         </el-select>
       </el-form-item>
@@ -23,7 +23,7 @@
 <script>
 export default {
   name: "CategorySelect",
-  props:['isShowAttrList'],
+  props:['isShowTable'],
   data() {
     return {
         list1:[],
