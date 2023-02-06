@@ -92,7 +92,10 @@
           </el-table-column>
           <el-table-column prop="prop" label="操作" width="width">
             <template slot-scope="{ row, $index }">
-              <el-popconfirm :title="`确定删除${row.valueName}吗？`" @onConfirm="delAttrVal($index)">
+              <el-popconfirm
+                :title="`确定删除${row.valueName}吗？`"
+                @onConfirm="delAttrVal($index)"
+              >
                 <el-button
                   type="danger"
                   icon="el-icon-delete"
@@ -103,7 +106,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="saveAttr">保存</el-button>
         <el-button @click="cancelAddOrEditAttr">取消</el-button>
       </div>
     </el-card>
@@ -121,7 +124,7 @@ export default {
       category3Id: "",
       attrList: [],
       // 是否展示属性列表
-      isShowAttrList: false,
+      isShowAttrList: true,
       attrForm: {
         attrName: "",
         attrValueList: [],
@@ -172,11 +175,17 @@ export default {
     },
     // 添加属性按钮的回调
     addAttrVal() {
-      this.attrForm.attrValueList.push({
-        attrId: this.attrForm.id, // 获取到编辑属性的id值
-        valueName: "",
-        flag: true,
+      // 补充：如果属性值为空，不能再次添加
+      let isNull = this.attrForm.attrValueList.some((item) => {
+        return item.flag == true && !item.valueName;
       });
+      if (!isNull){
+        this.attrForm.attrValueList.push({
+          attrId: this.attrForm.id, // 获取到编辑属性的id值
+          valueName: "",
+          flag: true,
+        });
+      }
       // 自动聚焦
       this.$nextTick(() => {
         this.$refs[this.attrForm.attrValueList.length - 1].focus();
@@ -222,7 +231,32 @@ export default {
     },
     // 删除(注意：由于elementui版本问题，确定事件是onConfirm，而不是confirm)
     delAttrVal(index) {
-      this.attrForm.attrValueList.splice(index,1)
+      this.attrForm.attrValueList.splice(index, 1);
+    },
+    // 点击保存，收集数据，发送请求到服务器
+    async saveAttr() {
+      // 点击保存向后台传递的数据中没有flag，这时候我们要把flag属性删除掉
+      // 删除对象某个属性的方法，学到了！！
+      this.attrForm.attrValueList = this.attrForm.attrValueList.filter(item =>{
+        delete item.flag
+        return true
+      })
+      // 发请求
+      try {
+        let result = await this.$API.attr.reqSaveAttr(this.attrForm)
+        if(result.code == 200){
+          this.$message({
+            type:'success',
+            message:'保存成功'
+          })
+          // 保存成功后返回列表页
+          this.isShowAttrList = true,
+          // 更新属性列表
+          this.getCategoryList()
+        }
+      } catch (error) {
+        // this.$message("保存失败")
+      }
     },
   },
 };

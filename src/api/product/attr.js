@@ -28,3 +28,11 @@ export const reqAttrInfoList = (category1Id,category2Id,category3Id) => {
         method:'get'
     })
 }
+// 保存新增或者修改的属性
+export const reqSaveAttr = (data) => {
+    return request({
+        url:'/admin/product/saveAttrInfo',
+        method:'post',
+        data: data
+    })
+}
