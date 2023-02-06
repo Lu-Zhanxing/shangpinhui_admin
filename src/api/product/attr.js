@@ -36,3 +36,11 @@ export const reqSaveAttr = (data) => {
         data: data
     })
 }
+
+// 删除商品属性
+export const reqDeleteAttr = (attrId) => {
+    return request({
+        url:`/admin/product/deleteAttr/${attrId}`,
+        method:'delete'
+    })
+}

@@ -37,11 +37,14 @@
                 size="mini"
                 @click="editAttr(row)"
               ></el-button>
-              <el-button
+              <el-popconfirm :title="`确定删除${row.attrName}吗？`" @onConfirm="delAttr(row)">
+                <el-button
                 icon="el-icon-delete"
                 type="danger"
                 size="mini"
+                slot="reference"
               ></el-button>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -258,6 +261,18 @@ export default {
         // this.$message("保存失败")
       }
     },
+    // 删除商品属性（视频上没有，自己根据后台接口加上的）
+    async delAttr(row){
+      let result = await this.$API.attr.reqDeleteAttr(row.id)
+      if(result.code == 200){
+        this.$message({
+          type:'success',
+          message:'删除成功'
+        })
+        // 更新属性列表
+        this.getCategoryList()
+      }
+    }
   },
 };
 </script>
