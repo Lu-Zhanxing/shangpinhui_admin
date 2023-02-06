@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card class="box-card" style="margin: 10px 0 20px 0">
-      <CategorySelect @getCategoryId="getCategoryId"></CategorySelect>
+      <CategorySelect @getCategoryId="getCategoryId" :isShowAttrList="isShowAttrList"></CategorySelect>
     </el-card>
     <el-card>
       <div v-show="isShowAttrList">
@@ -106,7 +106,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary" @click="saveAttr">保存</el-button>
+        <el-button type="primary" @click="saveAttr" :disabled="attrForm.attrValueList.length < 1">保存</el-button>
         <el-button @click="cancelAddOrEditAttr">取消</el-button>
       </div>
     </el-card>
@@ -238,8 +238,8 @@ export default {
       // 点击保存向后台传递的数据中没有flag，这时候我们要把flag属性删除掉
       // 删除对象某个属性的方法，学到了！！
       this.attrForm.attrValueList = this.attrForm.attrValueList.filter(item =>{
-        delete item.flag
-        return true
+          delete item.flag
+          return true
       })
       // 发请求
       try {
