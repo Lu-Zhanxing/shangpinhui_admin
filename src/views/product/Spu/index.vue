@@ -4,8 +4,8 @@
       <CategorySelect @getCategoryId="getCategoryId" :isShowTable="isShowTable"></CategorySelect>
     </el-card>
     <el-card>
-      <div v-show="isShowTable">
-        <el-button type="primary" icon="el-icon-plus" :disabled="!this.category3Id">添加SPU</el-button>
+      <div v-show="sence==0">
+        <el-button type="primary" icon="el-icon-plus" :disabled="!this.category3Id" @click="addSpu">添加SPU</el-button>
         <el-table :data="spuList" style="width: 100%;margin:10px 0" border>
           <el-table-column type="index" label="序号" width="80" align="center"></el-table-column>
           <el-table-column prop="spuName" label="spu名称" width="width"></el-table-column>
@@ -14,7 +14,7 @@
             <template slot-scope="{row,$index}">
               <!-- 问题：这里需要用到一个啥玩意儿来着，忘了 -->
               <el-button type="success" icon="el-icon-plus" size="mini"></el-button>
-              <el-button type="warning" icon="el-icon-edit" size="mini"></el-button>
+              <el-button type="warning" icon="el-icon-edit" size="mini" @click="editSpu(row)"></el-button>
               <el-button type="info" icon="el-icon-info" size="mini"></el-button>
               <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
             </template>
@@ -32,13 +32,22 @@
           align="center">
         </el-pagination>
       </div>
+      <div v-show="sence==1">
+        <AddOrEditSpu></AddOrEditSpu>
+      </div>
+      <div v-show="sence==2">
+        <add-sku></add-sku>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script>
+import AddOrEditSpu from './AddOrEditSpu'
+import AddSku from './AddSku'
 export default {
   name: "Spu",
+  components:{AddOrEditSpu,AddSku},
   data() {
     return {
       category1Id: "",
@@ -51,7 +60,9 @@ export default {
       // 分页器参数
       page:1, //当前第几页
       limit:3, //每页多少条数据
-      total:0 //总共多少条数居
+      total:0, //总共多少条数居
+      // 列表展示sence
+      sence:0, //0表示展示spu列表，1表示添加、修改SPU页面，2表示新增SKU页面
     };
   },
   methods: {
@@ -89,6 +100,14 @@ export default {
     handleCurrentChange(val) {
       this.page = val
       this.getSpuList();
+    },
+    // 添加spu
+    addSpu(){
+      this.sence = 1
+    },
+    // 编辑spu
+    editSpu(row){
+      this.sence = 1
     }
   },
 };
