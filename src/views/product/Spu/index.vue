@@ -33,7 +33,7 @@
         </el-pagination>
       </div>
       <div v-show="sence==1">
-        <AddOrEditSpu></AddOrEditSpu>
+        <AddOrEditSpu @changeSence="changeSence" ref="addOrEditSpu"></AddOrEditSpu>
       </div>
       <div v-show="sence==2">
         <add-sku></add-sku>
@@ -108,6 +108,11 @@ export default {
     // 编辑spu
     editSpu(row){
       this.sence = 1
+      // 发请求
+      this.$refs.addOrEditSpu.getSpuById(row)
+    },
+    changeSence(sence){
+      this.sence = sence
     }
   },
 };

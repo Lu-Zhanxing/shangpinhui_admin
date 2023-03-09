@@ -8,3 +8,12 @@ export const reqSpuList = (page,limit,category3Id) => {
         params:{category3Id}
     })
 }
+// 以下是编辑SPU发的四个请求
+// 1.获取某一个SPU信息
+export const reqGetSpuById = (spuId) => request({url:`/admin/product/getSpuById/${spuId}`,method:'get'})
+// 2.获取品牌
+export const reqTrademarkList = () => request({url:'/admin/product/baseTrademark/getTrademarkList',method:'get'})
+// 3.获取SPU图片
+export const reqSpuImgList = (spuId) => request({url:`/admin/product/spuImageList/${spuId}`,method:'get'})
+// 4.获取平台中全部的销售属性（3个）
+export const reqBaseSaleAttrList = () => request({url:'/admin/product/baseSaleAttrList',method:'get'})
