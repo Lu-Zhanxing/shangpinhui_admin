@@ -28,9 +28,10 @@
         <el-upload
           action="/dev-api/admin/product/fileUpload"
           list-type="picture-card"
-          :file-list="spuForm.spuImageList"
+          :file-list="spuImgList"
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
+          :on-success="handleAvatarSuccess"
         >
           <i class="el-icon-plus"></i>
         </el-upload>
@@ -58,7 +59,7 @@
           <el-table-column label="属性值列表" width="width">
             <template slot-scope="{ row, $index }">
               <el-tag
-                :key="tag"
+                :key="tag.id"
                 v-for="tag in row.spuSaleAttrValueList"
                 closable
                 :disable-transitions="false"
@@ -144,7 +145,7 @@ export default {
         ],
       },
       tradeMarkList: [], // 品牌列表
-      // spuImgList: [], // 图片列表
+      spuImgList: [], // 图片列表
       saleAttrList: [], // 销售属性
 
       // tag标签内的属性
@@ -167,10 +168,16 @@ export default {
     // 照片墙
     handleRemove(file, fileList) {
       console.log(file, fileList);
+      // 移除照片的时候需要先更新收集照片列表
+      this.spuImgList = fileList
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
       this.dialogVisible = true;
+    },
+    handleAvatarSuccess(res, file, fileList) {
+      // 上传图片的时候需要更新收集照片列表
+      this.spuImgList = fileList
     },
     // 取消添加、编辑SPU
     toList() {
@@ -192,13 +199,12 @@ export default {
       // 获取图片数据
       let imgResult = await this.$API.spu.reqSpuImgList(row.id);
       if (imgResult.code == 200) {
-        // this.spuImgList = imgResult.data;
         let imgListArr = imgResult.data;
         imgListArr.forEach((item) => {
           item.url = item.imgUrl;
           item.name = item.imgName;
         });
-        this.spuForm.spuImageList = imgListArr;
+        this.spuImgList = imgListArr;
       }
       // 获取销售属性
       let saleResult = await this.$API.spu.reqBaseSaleAttrList();
