@@ -28,3 +28,6 @@ export const AddOrEditSpuInfo = (data) => {
         return request({url:'/admin/product/saveSpuInfo',method:'post',data})
     }
 }
+
+// 删除SPU
+export const delSpu = (spuId) => request({url:`/admin/product/deleteSpu/${spuId}`,method:'delete'})

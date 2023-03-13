@@ -1,22 +1,67 @@
 <template>
   <div>
-    <el-card style="margin:20px 0">
-      <CategorySelect @getCategoryId="getCategoryId" :isShowTable="sence==0"></CategorySelect>
+    <el-card style="margin: 20px 0">
+      <CategorySelect
+        @getCategoryId="getCategoryId"
+        :isShowTable="sence == 0"
+      ></CategorySelect>
     </el-card>
     <el-card>
-      <div v-show="sence==0">
-        <el-button type="primary" icon="el-icon-plus" :disabled="!this.category3Id" @click="addSpu">添加SPU</el-button>
-        <el-table :data="spuList" style="width: 100%;margin:10px 0" border>
-          <el-table-column type="index" label="序号" width="80" align="center"></el-table-column>
-          <el-table-column prop="spuName" label="spu名称" width="width"></el-table-column>
-          <el-table-column prop="description" label="spu描述" width="width"></el-table-column>
+      <div v-show="sence == 0">
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          :disabled="!this.category3Id"
+          @click="addSpu"
+          >添加SPU</el-button
+        >
+        <el-table :data="spuList" style="width: 100%; margin: 10px 0" border>
+          <el-table-column
+            type="index"
+            label="序号"
+            width="80"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="spuName"
+            label="spu名称"
+            width="width"
+          ></el-table-column>
+          <el-table-column
+            prop="description"
+            label="spu描述"
+            width="width"
+          ></el-table-column>
           <el-table-column label="操作" width="width">
-            <template slot-scope="{row,$index}">
-              <!-- 问题：这里需要用到一个啥玩意儿来着，忘了 -->
-              <el-button type="success" icon="el-icon-plus" size="mini"></el-button>
-              <el-button type="warning" icon="el-icon-edit" size="mini" @click="editSpu(row)"></el-button>
-              <el-button type="info" icon="el-icon-info" size="mini"></el-button>
-              <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <template slot-scope="{ row, $index }">
+              <!-- 问题：这里需要用到一个啥玩意儿来着，忘了  hint-button(目前我没用，细节问题，以后有需要再说)-->
+              <el-button
+                type="success"
+                icon="el-icon-plus"
+                size="mini"
+              ></el-button>
+              <el-button
+                type="warning"
+                icon="el-icon-edit"
+                size="mini"
+                @click="editSpu(row)"
+              ></el-button>
+              <el-button
+                type="info"
+                icon="el-icon-info"
+                size="mini"
+              ></el-button>
+              <el-popconfirm
+                title="确定删除此SPU信息吗？"
+                @onConfirm="delSpu(row)"
+              >
+                <el-button
+                  slot="reference"
+                  type="danger"
+                  icon="el-icon-delete"
+                  size="mini"
+                ></el-button>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -29,13 +74,17 @@
           :page-size="limit"
           layout=" prev, pager, next, jumper, ->, sizes, total"
           :total="total"
-          align="center">
+          align="center"
+        >
         </el-pagination>
       </div>
-      <div v-show="sence==1">
-        <AddOrEditSpu @changeSence="changeSence" ref="addOrEditSpu"></AddOrEditSpu>
+      <div v-show="sence == 1">
+        <AddOrEditSpu
+          @changeSence="changeSence"
+          ref="addOrEditSpu"
+        ></AddOrEditSpu>
       </div>
-      <div v-show="sence==2">
+      <div v-show="sence == 2">
         <add-sku></add-sku>
       </div>
     </el-card>
@@ -43,11 +92,11 @@
 </template>
 
 <script>
-import AddOrEditSpu from './AddOrEditSpu'
-import AddSku from './AddSku'
+import AddOrEditSpu from "./AddOrEditSpu";
+import AddSku from "./AddSku";
 export default {
   name: "Spu",
-  components:{AddOrEditSpu,AddSku},
+  components: { AddOrEditSpu, AddSku },
   data() {
     return {
       category1Id: "",
@@ -58,11 +107,11 @@ export default {
       // spu列表
       spuList: [],
       // 分页器参数
-      page:1, //当前第几页
-      limit:3, //每页多少条数据
-      total:0, //总共多少条数居
+      page: 1, //当前第几页
+      limit: 3, //每页多少条数据
+      total: 0, //总共多少条数居
       // 列表展示sence
-      sence:0, //0表示展示spu列表，1表示添加、修改SPU页面，2表示新增SKU页面
+      sence: 0, //0表示展示spu列表，1表示添加、修改SPU页面，2表示新增SKU页面
     };
   },
   methods: {
@@ -82,44 +131,53 @@ export default {
       }
     },
     async getSpuList() {
-      let {page,limit,category3Id} = this
-      let result = await this.$API.spu.reqSpuList(page,limit,category3Id)
-      if(result.code == 200){
-        let resultData = result.data
-        this.page = resultData.current
-        this.limit = resultData.size
-        this.total = resultData.total
-        this.spuList = resultData.records
+      let { page, limit, category3Id } = this;
+      let result = await this.$API.spu.reqSpuList(page, limit, category3Id);
+      if (result.code == 200) {
+        let resultData = result.data;
+        this.page = resultData.current;
+        this.limit = resultData.size;
+        this.total = resultData.total;
+        this.spuList = resultData.records;
       }
     },
     // 分页组件的两个方法
     handleSizeChange(val) {
-      this.limit = val
+      this.limit = val;
       this.getSpuList();
     },
     handleCurrentChange(val) {
-      this.page = val
+      this.page = val;
       this.getSpuList();
     },
     // 添加spu
-    addSpu(){
-      this.sence = 1
+    addSpu() {
+      this.sence = 1;
       // 发请求获取品牌信息和销售属性
-      this.$refs.addOrEditSpu.getTrademarkAndSale(this.category3Id)
+      this.$refs.addOrEditSpu.getTrademarkAndSale(this.category3Id);
     },
     // 编辑spu
-    editSpu(row){
-      this.sence = 1
+    editSpu(row) {
+      this.sence = 1;
       // 发请求
-      this.$refs.addOrEditSpu.getSpuById(row)
+      this.$refs.addOrEditSpu.getSpuById(row);
     },
-    changeSence({sence,flag}){
-      this.sence = sence
-      if (flag=='添加') {
-        this.page = 1
+    changeSence({ sence, flag }) {
+      this.sence = sence;
+      if (flag == "添加") {
+        this.page = 1;
       }
       this.getSpuList();
-    }
+    },
+
+    // 删除SPU
+    async delSpu(row) {
+      let result = await this.$API.spu.delSpu(row.id);
+      if (result.code == 200) {
+        this.$message({ message: "删除成功", type: "success" });
+        this.getSpuList();
+      }
+    },
   },
 };
 </script>
