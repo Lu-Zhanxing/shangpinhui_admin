@@ -109,7 +109,7 @@
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="saveAttrInfo">保存</el-button>
         <el-button @click="toList">取消</el-button>
       </el-form-item>
     </el-form>
@@ -237,12 +237,12 @@ export default {
     handleClose(row,index) {
       row.spuSaleAttrValueList.splice(index, 1);
     },
-
+    // 展示input输入框
     showInput(row) {
       this.$set(row,'inputVisible',true)
       this.$set(row,'inputValue','')
     },
-
+    // input输入框失去焦点事件
     handleInputConfirm(row) {
       let {baseSaleAttrId} = row
       // 判断是否为空
@@ -259,6 +259,24 @@ export default {
       }
       row.inputVisible = false
     },
+
+    // 保存attrInfo信息
+    async saveAttrInfo(){
+      // 将外部的spuImgList中的属性进行处理，并保存到spuForm中，提交给后台
+      let {spuForm, spuImgList} = this
+      spuForm.spuImageList = spuImgList.map(item => {
+        return {
+          imgName: item.name,
+          imgUrl: item.response? item.response.data: item.url
+        }
+      })
+      let result = await this.$API.spu.AddOrEditSpuInfo(spuForm)
+      if (result.code == 200) {
+        this.$message({message:'保存成功',type:'success'})
+        // 返回列表页面
+        this.toList()
+      }
+    }
   },
 };
 </script>

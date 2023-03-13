@@ -104,6 +104,7 @@ export default {
     // 添加spu
     addSpu(){
       this.sence = 1
+      
     },
     // 编辑spu
     editSpu(row){
@@ -113,6 +114,7 @@ export default {
     },
     changeSence(sence){
       this.sence = sence
+      this.getSpuList();
     }
   },
 };
