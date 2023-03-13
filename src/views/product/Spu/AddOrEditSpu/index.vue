@@ -40,10 +40,20 @@
         </el-dialog>
       </el-form-item>
       <el-form-item label="销售属性">
-        <el-select v-model="unselectId" :placeholder="`还有${unSelectedSaleAttr.length}未选择`">
-          <el-option :label="unselect.name" :value="unselect.id" v-for="(unselect,index) in unSelectedSaleAttr" :key="unselect.id"></el-option>
+        <el-select
+          v-model="unselectIdAndName"
+          :placeholder="`还有${unSelectedSaleAttr.length}未选择`"
+        >
+          <el-option
+            :label="unselect.name"
+            :value="`${unselect.id}:${unselect.name}`"
+            v-for="(unselect, index) in unSelectedSaleAttr"
+            :key="unselect.id"
+          ></el-option>
         </el-select>
-        <el-button type="primary" icon="el-icon-plus" :disabled="!unselectId">添加销售属性</el-button>
+        <el-button type="primary" icon="el-icon-plus" :disabled="!unselectIdAndName" @click="addSaleAttr"
+          >添加销售属性</el-button
+        >
         <el-table style="width: 100%" border :data="spuForm.spuSaleAttrList">
           <el-table-column
             type="index"
@@ -60,35 +70,40 @@
             <template slot-scope="{ row, $index }">
               <el-tag
                 :key="tag.id"
-                v-for="tag in row.spuSaleAttrValueList"
+                v-for="(tag,index) in row.spuSaleAttrValueList"
                 closable
                 :disable-transitions="false"
-                @close="handleClose(tag)"
+                @close="handleClose(row,index)"
               >
                 {{ tag.saleAttrValueName }}
               </el-tag>
               <el-input
                 class="input-new-tag"
-                v-if="inputVisible"
-                v-model="inputValue"
+                v-if="row.inputVisible"
+                v-model="row.inputValue"
                 ref="saveTagInput"
                 size="small"
-                @keyup.enter.native="handleInputConfirm"
-                @blur="handleInputConfirm"
+                @keyup.enter.native="handleInputConfirm(row)"
+                @blur="handleInputConfirm(row)"
               >
               </el-input>
               <el-button
                 v-else
                 class="button-new-tag"
                 size="small"
-                @click="showInput"
+                @click="showInput(row)"
                 >添加</el-button
               >
             </template>
           </el-table-column>
           <el-table-column prop="prop" label="操作" width="150">
-            <template slot-scope="{row,$index}">
-              <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <template slot-scope="{ row, $index }">
+              <el-button
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+                @click="spuForm.spuSaleAttrList.splice($index,1)"
+              ></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -148,28 +163,25 @@ export default {
       spuImgList: [], // 图片列表
       saleAttrList: [], // 销售属性
 
-      // tag标签内的属性
-      inputVisible: false,
-      inputValue: '',
-      unselectId: '',//收集未选择的销售属性id
+      unselectIdAndName: "", //收集未选择的销售属性id和名称
     };
   },
-  computed:{
-    unSelectedSaleAttr(){
-      let result = this.saleAttrList.filter(item => {
-        return this.spuForm.spuSaleAttrList.every(item1 => {
-          return item.name != item1.saleAttrName
-        })
-      })
-      return result
-    }
+  computed: {
+    // 未选择的销售属性
+    unSelectedSaleAttr() {
+      let result = this.saleAttrList.filter((item) => {
+        return this.spuForm.spuSaleAttrList.every((item1) => {
+          return item.name != item1.saleAttrName;
+        });
+      });
+      return result;
+    },
   },
   methods: {
     // 照片墙
     handleRemove(file, fileList) {
-      console.log(file, fileList);
       // 移除照片的时候需要先更新收集照片列表
-      this.spuImgList = fileList
+      this.spuImgList = fileList;
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
@@ -177,7 +189,7 @@ export default {
     },
     handleAvatarSuccess(res, file, fileList) {
       // 上传图片的时候需要更新收集照片列表
-      this.spuImgList = fileList
+      this.spuImgList = fileList;
     },
     // 取消添加、编辑SPU
     toList() {
@@ -212,45 +224,59 @@ export default {
         this.saleAttrList = saleResult.data;
       }
     },
-    
+
+    // 添加未选择的销售属性
+    addSaleAttr(){
+      // let baseSaleAttrId = this.unselectIdAndName.split(":")[0]
+      // let saleAttrName = this.unselectIdAndName.split(":")[1]
+      //注意：如上这个可以简写成
+      let [baseSaleAttrId,saleAttrName] = this.unselectIdAndName.split(":")
+      this.spuForm.spuSaleAttrList.push({baseSaleAttrId,saleAttrName,spuSaleAttrValueList:[]})
+    },
     // 销售属性--tag标签内部方法,后期还需要修改的
-    handleClose(tag) {
-        this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
-      },
+    handleClose(row,index) {
+      row.spuSaleAttrValueList.splice(index, 1);
+    },
 
-      showInput() {
-        this.inputVisible = true;
-        this.$nextTick(_ => {
-          this.$refs.saveTagInput.$refs.input.focus();
-        });
-      },
+    showInput(row) {
+      this.$set(row,'inputVisible',true)
+      this.$set(row,'inputValue','')
+    },
 
-      handleInputConfirm() {
-        let inputValue = this.inputValue;
-        if (inputValue) {
-          this.dynamicTags.push(inputValue);
+    handleInputConfirm(row) {
+      let {baseSaleAttrId} = row
+      // 判断是否为空
+      let val = row.inputValue.trim()
+      if(!val){
+        this.$message('输入的值不能为空')
+        return
+      }else{
+        // 判断新添加的是否重复
+        let result = row.spuSaleAttrValueList.some(item => {return item.saleAttrValueName == val})
+        if(!result){
+          row.spuSaleAttrValueList.push({baseSaleAttrId,saleAttrValueName:val})
         }
-        this.inputVisible = false;
-        this.inputValue = '';
       }
+      row.inputVisible = false
+    },
   },
 };
 </script>
 
 <style>
-  .el-tag + .el-tag {
-    margin-left: 10px;
-  }
-  .button-new-tag {
-    margin-left: 10px;
-    height: 32px;
-    line-height: 30px;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .input-new-tag {
-    width: 90px;
-    margin-left: 10px;
-    vertical-align: bottom;
-  }
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
+}
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card style="margin:20px 0">
-      <CategorySelect @getCategoryId="getCategoryId" :isShowTable="isShowTable"></CategorySelect>
+      <CategorySelect @getCategoryId="getCategoryId" :isShowTable="sence==0"></CategorySelect>
     </el-card>
     <el-card>
       <div v-show="sence==0">
@@ -54,7 +54,7 @@ export default {
       category2Id: "",
       category3Id: "",
       // 是否展示列表
-      isShowTable: true,
+      // isShowTable: true,
       // spu列表
       spuList: [],
       // 分页器参数
