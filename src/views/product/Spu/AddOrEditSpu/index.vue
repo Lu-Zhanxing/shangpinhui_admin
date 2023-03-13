@@ -51,7 +51,11 @@
             :key="unselect.id"
           ></el-option>
         </el-select>
-        <el-button type="primary" icon="el-icon-plus" :disabled="!unselectIdAndName" @click="addSaleAttr"
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          :disabled="!unselectIdAndName"
+          @click="addSaleAttr"
           >添加销售属性</el-button
         >
         <el-table style="width: 100%" border :data="spuForm.spuSaleAttrList">
@@ -70,10 +74,10 @@
             <template slot-scope="{ row, $index }">
               <el-tag
                 :key="tag.id"
-                v-for="(tag,index) in row.spuSaleAttrValueList"
+                v-for="(tag, index) in row.spuSaleAttrValueList"
                 closable
                 :disable-transitions="false"
-                @close="handleClose(row,index)"
+                @close="handleClose(row, index)"
               >
                 {{ tag.saleAttrValueName }}
               </el-tag>
@@ -102,7 +106,7 @@
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
-                @click="spuForm.spuSaleAttrList.splice($index,1)"
+                @click="spuForm.spuSaleAttrList.splice($index, 1)"
               ></el-button>
             </template>
           </el-table-column>
@@ -129,34 +133,27 @@ export default {
       spuForm: {
         category3Id: 0,
         id: 0,
-        spuName: "string",
-        description: "string",
-        tmId: 0, //收集所选品牌的id的字段
-        spuImageList: [
-          // {
-          //   id: 0,
-          //   imgName: "string",
-          //   imgUrl: "string",
-          //   spuId: 0,
-          // },
-        ],
+        spuName: "",
+        description: "",
+        tmId: "", //收集所选品牌的id的字段
+        spuImageList: [],
         spuSaleAttrList: [
-          {
-            baseSaleAttrId: 0,
-            id: 0,
-            saleAttrName: "string",
-            spuId: 0,
-            spuSaleAttrValueList: [
-              {
-                baseSaleAttrId: 0,
-                id: 0,
-                isChecked: "string",
-                saleAttrName: "string",
-                saleAttrValueName: "string",
-                spuId: 0,
-              },
-            ],
-          },
+          // {
+          //   baseSaleAttrId: 0,
+          //   id: 0,
+          //   saleAttrName: "",
+          //   spuId: 0,
+          //   spuSaleAttrValueList: [
+          //     {
+          //       baseSaleAttrId: 0,
+          //       id: 0,
+          //       isChecked: "",
+          //       saleAttrName: "",
+          //       saleAttrValueName: "",
+          //       spuId: 0,
+          //     },
+          //   ],
+          // },
         ],
       },
       tradeMarkList: [], // 品牌列表
@@ -192,9 +189,11 @@ export default {
       this.spuImgList = fileList;
     },
     // 取消添加、编辑SPU
-    toList() {
+    toList(flag='编辑') {
       // 自定义事件，将sence传递给父组件
-      this.$emit("changeSence", 0);
+      this.$emit("changeSence", {sence:0,flag});
+      // 重置数据
+      Object.assign(this._data, this.$options.data());
     },
     // 获取spu信息
     async getSpuById(row) {
@@ -225,58 +224,84 @@ export default {
       }
     },
 
+    //点击添加SPU获取品牌信息和销售属性信息
+    async getTrademarkAndSale(category3Id) {
+      this.spuForm.category3Id = category3Id
+      // 获取品牌数据
+      let trademarkResult = await this.$API.spu.reqTrademarkList();
+      if (trademarkResult.code == 200) {
+        this.tradeMarkList = trademarkResult.data;
+      }
+      // 获取销售属性
+      let saleResult = await this.$API.spu.reqBaseSaleAttrList();
+      if (saleResult.code == 200) {
+        this.saleAttrList = saleResult.data;
+      }
+    },
+
     // 添加未选择的销售属性
-    addSaleAttr(){
+    addSaleAttr() {
       // let baseSaleAttrId = this.unselectIdAndName.split(":")[0]
       // let saleAttrName = this.unselectIdAndName.split(":")[1]
       //注意：如上这个可以简写成
-      let [baseSaleAttrId,saleAttrName] = this.unselectIdAndName.split(":")
-      this.spuForm.spuSaleAttrList.push({baseSaleAttrId,saleAttrName,spuSaleAttrValueList:[]})
+      let [baseSaleAttrId, saleAttrName] = this.unselectIdAndName.split(":");
+      this.spuForm.spuSaleAttrList.push({
+        baseSaleAttrId,
+        saleAttrName,
+        spuSaleAttrValueList: [],
+      });
     },
     // 销售属性--tag标签内部方法,后期还需要修改的
-    handleClose(row,index) {
+    handleClose(row, index) {
       row.spuSaleAttrValueList.splice(index, 1);
     },
     // 展示input输入框
     showInput(row) {
-      this.$set(row,'inputVisible',true)
-      this.$set(row,'inputValue','')
+      this.$set(row, "inputVisible", true);
+      this.$set(row, "inputValue", "");
     },
     // input输入框失去焦点事件
     handleInputConfirm(row) {
-      let {baseSaleAttrId} = row
+      let { baseSaleAttrId } = row;
       // 判断是否为空
-      let val = row.inputValue.trim()
-      if(!val){
-        this.$message('输入的值不能为空')
-        return
-      }else{
+      let val = row.inputValue.trim();
+      if (!val) {
+        this.$message("输入的值不能为空");
+        return;
+      } else {
         // 判断新添加的是否重复
-        let result = row.spuSaleAttrValueList.some(item => {return item.saleAttrValueName == val})
-        if(!result){
-          row.spuSaleAttrValueList.push({baseSaleAttrId,saleAttrValueName:val})
+        let result = row.spuSaleAttrValueList.some((item) => {
+          return item.saleAttrValueName == val;
+        });
+        if (!result) {
+          row.spuSaleAttrValueList.push({
+            baseSaleAttrId,
+            saleAttrValueName: val,
+          });
         }
       }
-      row.inputVisible = false
+      row.inputVisible = false;
     },
 
     // 保存attrInfo信息
-    async saveAttrInfo(){
+    async saveAttrInfo() {
       // 将外部的spuImgList中的属性进行处理，并保存到spuForm中，提交给后台
-      let {spuForm, spuImgList} = this
-      spuForm.spuImageList = spuImgList.map(item => {
+      let { spuForm, spuImgList } = this;
+      spuForm.spuImageList = spuImgList.map((item) => {
         return {
           imgName: item.name,
-          imgUrl: item.response? item.response.data: item.url
-        }
-      })
-      let result = await this.$API.spu.AddOrEditSpuInfo(spuForm)
+          imgUrl: item.response ? item.response.data : item.url,
+        };
+      });
+      let result = await this.$API.spu.AddOrEditSpuInfo(spuForm);
       if (result.code == 200) {
-        this.$message({message:'保存成功',type:'success'})
+        this.$message({ message: "保存成功", type: "success" });
+        // 判断是添加保存还是编辑保存的
+        let flag = this.spuForm.id? '编辑': '添加'
         // 返回列表页面
-        this.toList()
+        this.toList(flag);
       }
-    }
+    },
   },
 };
 </script>

@@ -104,7 +104,8 @@ export default {
     // 添加spu
     addSpu(){
       this.sence = 1
-      
+      // 发请求获取品牌信息和销售属性
+      this.$refs.addOrEditSpu.getTrademarkAndSale(this.category3Id)
     },
     // 编辑spu
     editSpu(row){
@@ -112,8 +113,11 @@ export default {
       // 发请求
       this.$refs.addOrEditSpu.getSpuById(row)
     },
-    changeSence(sence){
+    changeSence({sence,flag}){
       this.sence = sence
+      if (flag=='添加') {
+        this.page = 1
+      }
       this.getSpuList();
     }
   },
