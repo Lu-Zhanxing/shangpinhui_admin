@@ -39,17 +39,21 @@
                 type="success"
                 icon="el-icon-plus"
                 size="mini"
+                title="添加sku"
+                @click="addSku(row)"
               ></el-button>
               <el-button
                 type="warning"
                 icon="el-icon-edit"
                 size="mini"
                 @click="editSpu(row)"
+                title="编辑spu"
               ></el-button>
               <el-button
                 type="info"
                 icon="el-icon-info"
                 size="mini"
+                title="查看当前spu全部sku列表"
               ></el-button>
               <el-popconfirm
                 title="确定删除此SPU信息吗？"
@@ -60,6 +64,7 @@
                   type="danger"
                   icon="el-icon-delete"
                   size="mini"
+                  title="删除spu"
                 ></el-button>
               </el-popconfirm>
             </template>
@@ -85,7 +90,7 @@
         ></AddOrEditSpu>
       </div>
       <div v-show="sence == 2">
-        <add-sku></add-sku>
+        <add-sku @cancelAddSku="cancelAddSku" ref="toAddSku"></add-sku>
       </div>
     </el-card>
   </div>
@@ -178,6 +183,18 @@ export default {
         this.getSpuList();
       }
     },
+
+    // 添加sku
+    addSku(row){
+      this.sence = 2
+      // 这里需要发请求
+      this.$refs.toAddSku.addSku(this.category1Id,this.category2Id,row);
+    },
+
+    // 取消添加sku
+    cancelAddSku(sence){
+      this.sence = sence
+    }
   },
 };
 </script>
