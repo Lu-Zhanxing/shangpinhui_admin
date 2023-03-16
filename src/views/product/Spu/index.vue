@@ -54,6 +54,7 @@
                 icon="el-icon-info"
                 size="mini"
                 title="查看当前spu全部sku列表"
+                @click="getSkuListData(row)"
               ></el-button>
               <el-popconfirm
                 title="确定删除此SPU信息吗？"
@@ -93,6 +94,27 @@
         <add-sku @cancelAddSku="cancelAddSku" ref="toAddSku"></add-sku>
       </div>
     </el-card>
+    <!-- 弹窗 -->
+    <el-dialog :title="`${spuName}的sku列表`" :visible.sync="dialogTableVisible">
+      <el-table :data="skuListData">
+        <el-table-column
+          property="skuName"
+          label="名称"
+          width="150"
+        ></el-table-column>
+        <el-table-column
+          property="price"
+          label="价格"
+          width="200"
+        ></el-table-column>
+        <el-table-column property="weight" label="重量"></el-table-column>
+        <el-table-column label="默认图片">
+          <template slot-scope="{row,$index}">
+            <img :src="row.skuDefaultImg" width="100" height="100px">
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -117,6 +139,12 @@ export default {
       total: 0, //总共多少条数居
       // 列表展示sence
       sence: 0, //0表示展示spu列表，1表示添加、修改SPU页面，2表示新增SKU页面
+      // 弹窗
+      dialogTableVisible: false,
+      // 当前选中的spuName
+      spuName:'',
+      // sku列表
+      skuListData: [],
     };
   },
   methods: {
@@ -185,15 +213,25 @@ export default {
     },
 
     // 添加sku
-    addSku(row){
-      this.sence = 2
+    addSku(row) {
+      this.sence = 2;
       // 这里需要发请求
-      this.$refs.toAddSku.addSku(this.category1Id,this.category2Id,row);
+      this.$refs.toAddSku.addSku(this.category1Id, this.category2Id, row);
     },
 
     // 取消添加sku
-    cancelAddSku(sence){
-      this.sence = sence
+    cancelAddSku(sence) {
+      this.sence = sence;
+    },
+
+    // 查看某一个spu的sku列表
+    async getSkuListData(row){
+      this.spuName = row.spuName
+      this.dialogTableVisible = true
+      let result =await this.$API.spu.reqSkuListData(row.id)
+      if(result.code == 200){
+        this.skuListData = result.data
+      }
     }
   },
 };

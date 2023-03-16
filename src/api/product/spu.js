@@ -46,3 +46,5 @@ export const reqSaveSku = (data) => {
         data
     })
 }
+// 根据spuId获取sku列表
+export const reqSkuListData = (spuId) => request({url:`/admin/product/findBySpuId/${spuId}`,method:'get'})
