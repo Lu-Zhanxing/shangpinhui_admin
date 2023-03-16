@@ -95,8 +95,8 @@
       </div>
     </el-card>
     <!-- 弹窗 -->
-    <el-dialog :title="`${spuName}的sku列表`" :visible.sync="dialogTableVisible">
-      <el-table :data="skuListData">
+    <el-dialog :title="`${spuName}的sku列表`" :visible.sync="dialogTableVisible" :before-close="close">
+      <el-table :data="skuListData" v-loading="loading">
         <el-table-column
           property="skuName"
           label="名称"
@@ -145,6 +145,8 @@ export default {
       spuName:'',
       // sku列表
       skuListData: [],
+      // loading加载
+      loading: true
     };
   },
   methods: {
@@ -231,7 +233,14 @@ export default {
       let result =await this.$API.spu.reqSkuListData(row.id)
       if(result.code == 200){
         this.skuListData = result.data
+        this.loading = false
       }
+    },
+    // dialog关闭之前将loading值重置
+    close(done){
+      this.loading = true
+      this.skuListData = []
+      done()
     }
   },
 };
